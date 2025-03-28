@@ -20,6 +20,10 @@ export const useMovimientosStore = create((set, get) => ({
     set({ datamovimientos: response });
     return response;
   },
+  mostrarMovimientosSinSet: async (p) => {
+    const response = await MostrarMovimientosPorMesAño(p);
+    return response;
+  },
   calcularTotales: (response) => {
     const dtPagados = response?.filter((item) => item.estado == 1);
     const dtPendientes = response?.filter((item) => item.estado == 0);
@@ -59,5 +63,10 @@ export const useMovimientosStore = create((set, get) => ({
     const response = await RptMovimientosPorMesAño(p);
     set({ dataRptMovimientosAñoMes: response });
     return response;
+  },
+  setDatamovimientos: (data) => {
+    const { calcularTotales } = get();
+    calcularTotales(data);
+    set({ datamovimientos: data });
   },
 }));

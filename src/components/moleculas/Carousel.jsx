@@ -20,7 +20,19 @@ import img3 from "../../assets/Ruleta/ruleta5.png";
 import img4 from "../../assets/Ruleta/ruleta6.png";
 import img5 from "../../assets/Ruleta/ruleta7.png";
 import Arrow from "../../assets/Arrow.svg";
+import { useEffect } from "react";
 export function Carousel() {
+  useEffect(() => {
+    console.log("Mounted Carousel")
+    // Swiper se actualiza manualmente por si hay problemas de re-render
+    setTimeout(() => {
+      const swipers = document.querySelectorAll(".swiper");
+      swipers.forEach((swiperEl) => {
+        swiperEl.swiper?.update?.();
+      });
+    }, 100);
+  }, []);
+  const imgs = [img1, img2, img3, img4, img5];
   return (
     <CarouselContainer>
       <Swiper
@@ -39,21 +51,13 @@ export function Carousel() {
         scrollbar={{ draggable: true }}
         effect={"cards"}
       >
+        {imgs.map((img, index) => (
+          <SwiperSlide key={index}>
+            <img src={img} alt={`Image {index}`}/>
+          </SwiperSlide>
+        ))}
         <SwiperSlide>
           <img src={img1} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img src={img2} />
-        </SwiperSlide>
-        <SwiperSlide>
-          {" "}
-          <img src={img3} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img src={img4} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img src={img5} />
         </SwiperSlide>
       </Swiper>
     </CarouselContainer>

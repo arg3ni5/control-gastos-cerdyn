@@ -50,6 +50,22 @@ export async function MostrarMovimientosPorMesAño(p) {
     return data;
   } catch (error) {}
 }
+
+export async function MostrarTodosMovimientosPorMesAño(p) {
+  try {
+    const { data } = await supabase.rpc("mmovimientosmesanio_all", {
+      anio: p.año,
+      mes: p.mes,
+      iduser: p.idusuario,
+    });
+    return data;
+  } catch (error) {
+    console.error("Error al mostrar todos los movimientos", error);
+    return [];
+  }
+}
+
+
 export async function RptMovimientosPorMesAño(p) {
   try {
     const { data } = await supabase.rpc("rptmovimientos_anio_mes", {

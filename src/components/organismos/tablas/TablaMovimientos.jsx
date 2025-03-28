@@ -73,7 +73,16 @@ export function TablaMovimientos({
                   </td>
                   <td data-title="Categoria" >{item.categoria}</td>
                   <td data-title="Cuenta">{item.cuenta}</td>
-                  <td data-title="Monto">{item.valorymoneda}</td>
+                  <td data-title="Monto"
+                    style={{
+                      color: item.tipo === "g" ? "#E63946" : item.tipo === "i" ? "#2A9D8F" : "",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {item.tipo === "g" ? "-" : item.tipo === "i" ? "+" : ""}
+                    {item.valorymoneda}
+                  </td>
+
                   <td data-title="Acciones" >
                     <ContentAccionesTabla
                       funcionEditar={() => editar(item)}
@@ -213,7 +222,7 @@ const Container = styled.div`
           border-bottom: 1px solid rgba(161, 161, 161, 0.32);
           text-align: center;
         }
-        
+
       }
       td[data-type="currency"] {
         font-weight:600;

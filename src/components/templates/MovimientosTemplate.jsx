@@ -22,7 +22,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 export function MovimientosTemplate() {
-  
+
   const [dataSelect, setdataSelect] = useState([]);
   const [accion, setAccion] = useState("");
   const [openRegistro, SetopenRegistro] = useState(false);
@@ -50,6 +50,7 @@ export function MovimientosTemplate() {
     totalMesAñoPendientes,
     mostrarMovimientos,
     datamovimientos,
+    MostrarTodosMovimientosPorMesAño
   } = useMovimientosStore();
   const { mostrarCuentas } = useCuentaStore();
   const { mostrarCategorias } = useCategoriasStore();
@@ -67,23 +68,69 @@ export function MovimientosTemplate() {
     setAccion("Nuevo");
     setdataSelect([]);
   }
-  useQuery({queryKey:
-    [
+
+  useQuery({
+    queryKey: [
       "mostrar movimientos mes año",
-      { año: año, mes: mes, idusuario: idusuario, tipocategoria: tipo },
-    ],queryFn:
-    () =>
-      mostrarMovimientos({
-        año: año,
-        mes: mes,
-        idusuario: idusuario,
-        tipocategoria: tipo,
-      }),refetchOnWindowFocus:false,
-    });
+      { año, mes, idusuario, tipocategoria: tipo },
+    ],
+    queryFn: () =>
+      tipo === "b"
+        ? MostrarTodosMovimientosPorMesAño({ año, mes, idusuario })
+        : mostrarMovimientos({ año, mes, idusuario, tipocategoria: tipo }),
+    onSuccess: (data) => {
+      const dataConTipo = tipo === "b"
+        ? data.map((m) => ({ ...m, tipo: m.tipocategoria }))
+        : data;
+      setDatamovimientos(dataConTipo);
+    },
+    refetchOnWindowFocus: false,
+  });
+
+
   useQuery({queryKey:["mostrar cuentas"],queryFn: () => mostrarCuentas({ idusuario: idusuario })});
   useQuery({queryKey:["mostrar categorias", { idusuario: idusuario, tipo: tipo }],queryFn: () =>
     mostrarCategorias({ idusuario: idusuario, tipo: tipo })}
   );
+
+  const mostrarTotales = () => {
+    if (tipo === "b") {
+      return (
+        <>
+          <CardTotales
+            total={totalMesAño}
+            title="Total general"
+            color={colorCategoria}
+            icono={<v.balance />}
+          />
+        </>
+      );
+    }
+
+    return (
+      <>
+        <CardTotales
+          total={totalMesAñoPendientes}
+          title={tipo === "g" ? "Gastos pendientes" : "Ingresos pendientes"}
+          color={colorCategoria}
+          icono={<v.flechaarribalarga />}
+        />
+        <CardTotales
+          total={totalMesAñoPagados}
+          title={tipo === "g" ? "Gastos pagados" : "Ingresos pagados"}
+          color={colorCategoria}
+          icono={<v.flechaabajolarga />}
+        />
+        <CardTotales
+          total={totalMesAño}
+          title="Total"
+          color={colorCategoria}
+          icono={<v.balance />}
+        />
+      </>
+    );
+  };
+
 
   return (
     <Container>
@@ -122,35 +169,20 @@ export function MovimientosTemplate() {
             )}
           </div>
         </ContentFiltros>
-        <ContentFiltro>
-          <Btnfiltro
-            funcion={nuevoRegistro}
-            bgcolor={bgCategoria}
-            textcolor={colorCategoria}
-            icono={<v.agregar />}
-          />
-        </ContentFiltro>
+
+        {tipo !== "b" && (
+          <ContentFiltro>
+            <Btnfiltro
+              funcion={nuevoRegistro}
+              bgcolor={bgCategoria}
+              textcolor={colorCategoria}
+              icono={<v.agregar />}
+            />
+          </ContentFiltro>
+        )}
+
       </section>
-      <section className="totales">
-        <CardTotales
-          total={totalMesAñoPendientes}
-          title={tipo == "g" ? "Gastos pendientes" : "Ingresos pendientes"}
-          color={colorCategoria}
-          icono={<v.flechaarribalarga />}
-        />
-        <CardTotales
-          total={totalMesAñoPagados}
-          title={tipo == "g" ? "Gastos pagados" : "Ingresos pagados"}
-          color={colorCategoria}
-          icono={<v.flechaabajolarga />}
-        />
-        <CardTotales
-          total={totalMesAño}
-          title="Total"
-          color={colorCategoria}
-          icono={<v.balance />}
-        />
-      </section>
+      <section className="totales">{mostrarTotales()}</section>
       <section className="calendario">
         <CalendarioLineal
           value={value}
